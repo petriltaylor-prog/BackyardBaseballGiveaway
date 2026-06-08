@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pablo Sanchez Throwing Challenge</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <div class="field-lines" aria-hidden="true"></div>
+    <header class="topbar">
+      <a class="brand" href="#/">
+        <span class="brand-ball">BB</span>
+        <span>
+          <strong>Pablo Sanchez</strong>
+          <small>Throwing Challenge</small>
+        </span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="main-nav">Menu</button>
+      <nav id="main-nav" class="nav">
+        <a href="#/" data-route="/">Game Entry</a>
+        <a href="#/dashboard" data-route="/dashboard">Dashboard</a>
+        <a href="#/wheel" data-route="/wheel">Raffle Wheel</a>
+        <a href="#/winner" data-route="/winner">Winner</a>
+      </nav>
+    </header>
+
+    <main id="app" class="app-shell" aria-live="polite"></main>
+
+    <template id="entry-template">
+      <section class="hero-card">
+        <div class="hero-copy">
+          <p class="eyebrow">Event Table App</p>
+          <h1>Pablo Sanchez Throwing Challenge</h1>
+          <p>Staff enter the player, tally the score, and every point turns into one raffle entry automatically.</p>
+          <div class="rules-grid" aria-label="Scoring rules">
+            <div><strong>Easy</strong><span>1 point</span></div>
+            <div><strong>Hard</strong><span>5 points</span></div>
+            <div><strong>Impossible</strong><span>50 points</span></div>
+          </div>
+        </div>
+        <div class="mascot-card">
+          <img src="./backyard-baseball-challenge.png" alt="Backyard Baseball throwing challenge with easy, hard, and impossible targets">
+        </div>
+      </section>
+
+      <section class="entry-layout">
+        <form id="participant-form" class="scoreboard panel" autocomplete="on">
+          <div class="panel-heading">
+            <p class="eyebrow">Add Player</p>
+            <h2>Participant Entry</h2>
+          </div>
+          <div class="form-grid">
+            <label>First name
+              <input name="firstName" required maxlength="60" autocomplete="given-name" placeholder="Pablo">
+            </label>
+            <label>Last name
+              <input name="lastName" required maxlength="60" autocomplete="family-name" placeholder="Sanchez">
+            </label>
+            <label>Email
+              <input name="email" required type="email" maxlength="120" autocomplete="email" placeholder="pablo@example.com">
+            </label>
+            <label>Phone number
+              <input name="phone" required type="tel" maxlength="30" autocomplete="tel" placeholder="(555) 123-4567">
+            </label>
+            <label class="score-field">Score
+              <input id="score-input" name="score" required inputmode="numeric" pattern="[0-9]*" min="0" type="number" placeholder="0">
+            </label>
+            <div class="entry-count">
+              <span>Raffle entries</span>
+              <strong id="entry-preview">0</strong>
+            </div>
+          </div>
+          <div class="quick-score" aria-label="Quick score buttons">
+            <button type="button" data-add-score="1">+ Easy</button>
+            <button type="button" data-add-score="5">+ Hard</button>
+            <button type="button" data-add-score="50">+ Impossible</button>
+            <button type="button" data-clear-score>Clear Score</button>
+          </div>
+          <button class="primary-btn" id="submit-player" type="submit">Add participant to raffle</button>
+          <p id="form-message" class="form-message" role="status"></p>
+        </form>
+
+        <aside class="panel mini-dashboard">
+          <div class="panel-heading">
+            <p class="eyebrow">Live Stats</p>
+            <h2>Today's Board</h2>
+          </div>
+          <div class="stat-row"><span>Total participants</span><strong id="entry-total-participants">0</strong></div>
+          <div class="stat-row"><span>Total raffle entries</span><strong id="entry-total-entries">0</strong></div>
+          <div class="hole-card"><span class="icon">⚾</span><p>Score equals entries. A 40 point score puts that player on the wheel 40 times.</p></div>
+        </aside>
+      </section>
+    </template>
+
+    <template id="dashboard-template">
+      <section class="page-header panel">
+        <div>
+          <p class="eyebrow">Commissioner's Office</p>
+          <h1>Participants Dashboard</h1>
+          <p>Search, export, and manage the raffle database.</p>
+        </div>
+        <div class="dashboard-actions">
+          <button id="export-csv" class="secondary-btn" type="button">Export CSV</button>
+          <button id="reset-raffle" class="danger-btn" type="button">Reset raffle</button>
+        </div>
+      </section>
+      <section class="stats-grid">
+        <article class="stat-card"><span>Total participants</span><strong id="dash-total-participants">0</strong></article>
+        <article class="stat-card"><span>Total raffle entries</span><strong id="dash-total-entries">0</strong></article>
+        <article class="stat-card"><span>Highest score</span><strong id="dash-high-score">0</strong></article>
+      </section>
+      <section class="panel">
+        <div class="toolbar">
+          <label class="search-label">Search participants
+            <input id="participant-search" type="search" placeholder="Name, email, phone...">
+          </label>
+          <span id="participant-count-label" class="count-label"></span>
+        </div>
+        <div id="participant-list" class="participant-list"></div>
+      </section>
+      <dialog id="edit-participant-dialog" class="edit-dialog">
+        <form id="edit-participant-form" method="dialog">
+          <div class="panel-heading">
+            <p class="eyebrow">Update Player</p>
+            <h2>Edit Participant</h2>
+          </div>
+          <input name="id" type="hidden">
+          <div class="form-grid">
+            <label>First name
+              <input name="firstName" required maxlength="60">
+            </label>
+            <label>Last name
+              <input name="lastName" required maxlength="60">
+            </label>
+            <label>Email
+              <input name="email" required type="email" maxlength="120">
+            </label>
+            <label>Phone number
+              <input name="phone" required type="tel" maxlength="30">
+            </label>
+            <label>Score
+              <input name="score" required inputmode="numeric" pattern="[0-9]*" min="0" type="number">
+            </label>
+          </div>
+          <p class="edit-note">Changing the score also updates this participant's number of raffle entries.</p>
+          <div class="dialog-actions">
+            <button id="cancel-edit" class="secondary-btn" type="button">Cancel</button>
+            <button class="primary-btn" type="submit">Save changes</button>
+          </div>
+          <p id="edit-message" class="form-message" role="status"></p>
+        </form>
+      </dialog>
+    </template>
+
+    <template id="wheel-template">
+      <section class="wheel-layout">
+        <div class="panel wheel-stage">
+          <div class="panel-heading">
+            <p class="eyebrow">Weighted Raffle</p>
+            <h1>Raffle Wheel</h1>
+            <p id="wheel-summary">Loading entries...</p>
+          </div>
+          <div class="wheel-wrap">
+            <div class="pointer" aria-hidden="true"></div>
+            <canvas id="raffle-wheel" width="680" height="680" aria-label="Raffle wheel"></canvas>
+            <button id="spin-wheel" class="spin-btn" type="button">Spin</button>
+          </div>
+          <div id="wheel-result" class="winner-callout" hidden></div>
+        </div>
+        <aside class="panel">
+          <div class="panel-heading">
+            <p class="eyebrow">On The Wheel</p>
+            <h2>Entry Preview</h2>
+          </div>
+          <div id="wheel-entry-list" class="entry-pill-list"></div>
+        </aside>
+      </section>
+    </template>
+
+    <template id="winner-template">
+      <section class="panel winner-page">
+        <p class="eyebrow">Winner Results</p>
+        <h1>Selected Winner</h1>
+        <div id="winner-details"></div>
+        <a class="primary-link" href="#/wheel">Back to wheel</a>
+      </section>
+    </template>
+
+    <script src="./app.js" defer></script>
+  </body>
+</html>
