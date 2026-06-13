@@ -49,7 +49,9 @@ async function getParticipants() {
     const tx = db.transaction(STORE, "readonly");
     const request = tx.objectStore(STORE).getAll();
     request.onsuccess = () => {
-      const people = request.result.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+      const people = request.result
+        .map((person) => ({ ...person, score: 1, entries: 1 }))
+        .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
       participantsCache = people;
       resolve(people);
     };
@@ -101,13 +103,13 @@ function formatDate(iso) {
 function summarize(people) {
   return {
     participants: people.length,
-    entries: people.reduce((sum, person) => sum + Number(person.entries || 0), 0),
-    highScore: people.reduce((max, person) => Math.max(max, Number(person.score || 0)), 0),
+    entries: people.length,
+    highScore: people.length ? 1 : 0,
   };
 }
 
 function makeEntries(people) {
-  return people.flatMap((person) => Array.from({ length: person.entries }, () => person));
+  return people;
 }
 
 function routeFromHash() {
@@ -146,46 +148,25 @@ function updateEntryStats(people) {
 
 function setupEntryForm() {
   const form = $("#participant-form");
-  const scoreInput = $("#score-input");
-  const entryPreview = $("#entry-preview");
   const message = $("#form-message");
   const submit = $("#submit-player");
   let submitting = false;
   let lastSignature = "";
   let lastSubmitAt = 0;
 
-  const updatePreview = () => {
-    const score = Math.max(0, Number.parseInt(scoreInput.value || "0", 10) || 0);
-    entryPreview.textContent = score;
-  };
-
-  scoreInput.addEventListener("input", updatePreview);
-  $$("[data-add-score]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const current = Number.parseInt(scoreInput.value || "0", 10) || 0;
-      scoreInput.value = current + Number(button.dataset.addScore);
-      updatePreview();
-    });
-  });
-  $("[data-clear-score]").addEventListener("click", () => {
-    scoreInput.value = "";
-    updatePreview();
-  });
-
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     if (submitting) return;
 
     const data = new FormData(form);
-    const score = Math.max(0, Number.parseInt(data.get("score"), 10) || 0);
     const person = {
       id: crypto.randomUUID(),
       firstName: String(data.get("firstName") || "").trim(),
       lastName: String(data.get("lastName") || "").trim(),
       email: String(data.get("email") || "").trim().toLowerCase(),
       phone: String(data.get("phone") || "").trim(),
-      score,
-      entries: score,
+      score: 1,
+      entries: 1,
       createdAt: new Date().toISOString(),
     };
 
@@ -223,7 +204,6 @@ function setupEntryForm() {
       lastSignature = signature;
       lastSubmitAt = Date.now();
       form.reset();
-      updatePreview();
       message.className = "form-message success";
       message.textContent = `${fullName(person)} added with ${person.entries} raffle ${person.entries === 1 ? "entry" : "entries"}.`;
       $("input[name='firstName']").focus();
@@ -307,7 +287,6 @@ function setupParticipantEditing(allPeople) {
       form.elements.lastName.value = person.lastName;
       form.elements.email.value = person.email;
       form.elements.phone.value = person.phone;
-      form.elements.score.value = person.score;
       message.textContent = "";
       dialog.showModal();
     });
@@ -318,15 +297,14 @@ function setupParticipantEditing(allPeople) {
     event.preventDefault();
     const person = allPeople.find((candidate) => candidate.id === form.elements.id.value);
     if (!person) return;
-    const score = Math.max(0, Number.parseInt(form.elements.score.value || "0", 10) || 0);
     const updatedPerson = {
       ...person,
       firstName: form.elements.firstName.value.trim(),
       lastName: form.elements.lastName.value.trim(),
       email: form.elements.email.value.trim().toLowerCase(),
       phone: form.elements.phone.value.trim(),
-      score,
-      entries: score,
+      score: 1,
+      entries: 1,
       updatedAt: new Date().toISOString(),
     };
     await updateParticipant(updatedPerson);

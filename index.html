@@ -35,11 +35,11 @@
         <div class="hero-copy">
           <p class="eyebrow">Event Table App</p>
           <h1>Pablo Sanchez Throwing Challenge</h1>
-          <p>Staff enter the player, tally the score, and every point turns into one raffle entry automatically.</p>
+          <p>Staff enter the player information, press submit, and that player receives one raffle entry.</p>
           <div class="rules-grid" aria-label="Scoring rules">
-            <div><strong>Easy</strong><span>1 point</span></div>
-            <div><strong>Hard</strong><span>5 points</span></div>
-            <div><strong>Impossible</strong><span>50 points</span></div>
+            <div><strong>Sign Up</strong><span>Enter player info</span></div>
+            <div><strong>One Player</strong><span>One raffle entry</span></div>
+            <div><strong>Good Luck</strong><span>Spin to win</span></div>
           </div>
         </div>
         <div class="mascot-card">
@@ -66,19 +66,10 @@
             <label>Phone number
               <input name="phone" required type="tel" maxlength="30" autocomplete="tel" placeholder="(555) 123-4567">
             </label>
-            <label class="score-field">Score
-              <input id="score-input" name="score" required inputmode="numeric" pattern="[0-9]*" min="0" type="number" placeholder="0">
-            </label>
             <div class="entry-count">
               <span>Raffle entries</span>
-              <strong id="entry-preview">0</strong>
+              <strong>1</strong>
             </div>
-          </div>
-          <div class="quick-score" aria-label="Quick score buttons">
-            <button type="button" data-add-score="1">+ Easy</button>
-            <button type="button" data-add-score="5">+ Hard</button>
-            <button type="button" data-add-score="50">+ Impossible</button>
-            <button type="button" data-clear-score>Clear Score</button>
           </div>
           <button class="primary-btn" id="submit-player" type="submit">Add participant to raffle</button>
           <p id="form-message" class="form-message" role="status"></p>
@@ -91,7 +82,7 @@
           </div>
           <div class="stat-row"><span>Total participants</span><strong id="entry-total-participants">0</strong></div>
           <div class="stat-row"><span>Total raffle entries</span><strong id="entry-total-entries">0</strong></div>
-          <div class="hole-card"><span class="icon">⚾</span><p>Score equals entries. A 40 point score puts that player on the wheel 40 times.</p></div>
+          <div class="hole-card"><span class="icon">⚾</span><p>Every participant receives exactly one entry on the raffle wheel.</p></div>
         </aside>
       </section>
     </template>
@@ -142,11 +133,8 @@
             <label>Phone number
               <input name="phone" required type="tel" maxlength="30">
             </label>
-            <label>Score
-              <input name="score" required inputmode="numeric" pattern="[0-9]*" min="0" type="number">
-            </label>
           </div>
-          <p class="edit-note">Changing the score also updates this participant's number of raffle entries.</p>
+          <p class="edit-note">Every participant receives exactly one raffle entry.</p>
           <div class="dialog-actions">
             <button id="cancel-edit" class="secondary-btn" type="button">Cancel</button>
             <button class="primary-btn" type="submit">Save changes</button>
@@ -160,7 +148,7 @@
       <section class="wheel-layout">
         <div class="panel wheel-stage">
           <div class="panel-heading">
-            <p class="eyebrow">Weighted Raffle</p>
+            <p class="eyebrow">One Entry Each</p>
             <h1>Raffle Wheel</h1>
             <p id="wheel-summary">Loading entries...</p>
           </div>
